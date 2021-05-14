@@ -301,7 +301,7 @@ class ShortLivedTable(object):
 
         job_config = bigquery.ExtractJobConfig(**{
             "compression":"GZIP",
-            "destinationFormat":"CSV",
+            "destination_format":"CSV",
         })
 
         name = os.path.join(self.gcs_prefix, self.table_ref.table_id)
@@ -342,7 +342,8 @@ class ShortLivedTable(object):
                 log.info(f"File '{path}' exists, skipping download.")
                 continue
             log.info(f"Downloading '{blob.name}' to '{path}'...")
-            blob.download_to_filename(path, raw_download=True)
+            #blob.download_to_filename(path, raw_download=True)
+            blob.download_to_filename(path)
             log.info(f"Download of '{blob.name}' to '{path}' complete.")
 
         return False
@@ -391,7 +392,8 @@ def executeTemplates(path, project, dataset, bucket=None, params={}):
     by_name = {}
 
     todo = []
-    for fname in os.listdir(path):
+    for fname in ['users.sql', 'items.sql', 'edgelist.sql', 'README.txt']:
+    #for fname in os.listdir(path):
         if fname.endswith(".sql") and not fname.startswith('.'):
             name = os.path.splitext(fname)[0]
             fpath = os.path.join(path,fname)
@@ -414,6 +416,7 @@ def executeTemplates(path, project, dataset, bucket=None, params={}):
             by_full_name[t.full_name] = t
             graph[t.full_name] = t.parents()
         except KeyError as e:
+            log.info("error: " + str(e))
             log.debug(f"... unable to resolve {e} in {name}, will try again later.")
             todo.append((name, tmpl)) # put it back in the queue
             errcnt += 1
