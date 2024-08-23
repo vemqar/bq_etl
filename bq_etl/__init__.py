@@ -78,6 +78,7 @@ class ShortLivedTable(object):
         self.gcs_client = storage.Client(project=project)
         self.project = project
         self.dataset = dataset
+        self.dataset_ref = bigquery.DatasetReference(project, dataset)
         self.name_prefix = name_prefix
         self.sql = sql
         self.bucket = bucket
@@ -90,7 +91,8 @@ class ShortLivedTable(object):
 
         # Generate and set the table name
         h = self._short_hash(sql+self.name_prefix)
-        self.table_ref._table_id = f"{self.table_ref._table_id}_{h}"
+        new_table_id = f"{self.table_ref.table_id}_{h}"
+        self.table_ref = bigquery.TableReference(self.dataset_ref, new_table_id)
 
     def _short_hash(self, s, sz=6):
         if type(s) is str:
@@ -98,7 +100,7 @@ class ShortLivedTable(object):
         return str(base64.b32encode(hashlib.sha1(s).digest()), 'utf8').rstrip('=').lower()[:sz]
 
     def _full_name(self):
-        return f"{self.project}.{self.dataset}.{self.table_ref._table_id}"
+        return f"{self.project}.{self.dataset}.{self.table_ref.table_id}"
 
     @property
     def full_name(self):
