@@ -141,7 +141,7 @@ class ShortLivedTable(object):
         q = re.sub(r"/\*[^*]*\*+(?:[^*/][^*]*\*+)*/", "", self.sql)
 
         # remove whole line -- and # comments
-        lines = [line for line in q.splitlines() if not re.match("^\s*(--|#)", line)]
+        lines = [line for line in q.splitlines() if not re.match(r"^\s*(--|#)", line)]
 
         # remove trailing -- and # comments
         q = " ".join([re.split("--|#", line)[0] for line in lines])
