@@ -351,7 +351,7 @@ class ShortLivedTable(object):
         return False
 
 
-def executeTemplates(path, project, dataset, bucket=None, params={}):
+def executeTemplates(path, project, dataset, bucket=None, params={}, force=False):
     """Evaluate, parameterize and (if necessary) execute SQL templates.
 
     This function will read all .sql templates in path, and attempt to
@@ -441,7 +441,7 @@ def executeTemplates(path, project, dataset, bucket=None, params={}):
         for name in list(graph.keys()):
             if not graph[name]: # no parents, can execute
                 table = by_full_name[name]
-                if table.execute():
+                if table.execute(force=force):
                     count += 1
                     if count > len(params):
                         raise Exception(f"Execution count ({count}) is exceeding the table count ({len(params)}).")
